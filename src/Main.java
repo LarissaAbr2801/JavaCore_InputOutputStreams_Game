@@ -7,63 +7,103 @@ import java.util.zip.ZipOutputStream;
 public class Main {
 
     public static void main(String[] args) {
+        //task1
         StringBuilder stringBuilder = new StringBuilder();
-        File dir1 = new File("C://Users/1/Desktop/Java/Games/src");
-        stringBuilder.append(makeDir(dir1));
-        File dir2 = new File("C://Users/1/Desktop/Java/Games/res");
-        stringBuilder.append(makeDir(dir2));
-        File dir3 = new File("C://Users/1/Desktop/Java/Games/savegames");
-        stringBuilder.append(makeDir(dir3));
-        File dir4 = new File("C://Users/1/Desktop/Java/Games/temp");
-        stringBuilder.append(makeDir(dir4));
-        File dirInFirstDir1 = new File("C://Users/1/Desktop/Java/Games/src/main");
-        stringBuilder.append(makeDir(dirInFirstDir1));
-        File dirInFirstDir2 = new File("C://Users/1/Desktop/Java/Games/src/test");
-        stringBuilder.append(makeDir(dirInFirstDir2));
-        File file1 = new File(dirInFirstDir1, "Main.java");
-        stringBuilder.append(makeFile(file1));
-        File file2 = new File(dirInFirstDir1, "Utils.java");
-        stringBuilder.append(makeFile(file2));
-        File dirInSecondDir1 = new File("C://Users/1/Desktop/Java/Games/res/drawables");
-        stringBuilder.append(makeDir(dirInSecondDir1));
-        File dirInSecondDir2 = new File("C://Users/1/Desktop/Java/Games/res/vectors");
-        stringBuilder.append(makeDir(dirInSecondDir2));
-        File dirInSecondDir3 = new File("C://Users/1/Desktop/Java/Games/res/icons");
-        stringBuilder.append(makeDir(dirInSecondDir3));
-        File file3 = new File(dir4, "temp.txt");
-        stringBuilder.append(makeFile(file3));
+
+        //создание директорий в папке Games
+        String pathname1 = "../Games/src";
+        appendDirInStringBuilder(stringBuilder, pathname1);
+        String pathname2 = "../Games/res";
+        appendDirInStringBuilder(stringBuilder, pathname2);
+        String pathname3 = "../Games/saveGames";
+        appendDirInStringBuilder(stringBuilder, pathname3);
+        String pathname4 = "../Games/temp";
+        appendDirInStringBuilder(stringBuilder, pathname4);
+
+        //создание поддиректорий в src
+        String pathnameForSrc1 = "../Games/src/main";
+        appendDirInStringBuilder(stringBuilder, pathnameForSrc1);
+        String pathnameForSrc2 = "../Games/src/test";
+        appendDirInStringBuilder(stringBuilder, pathnameForSrc2);
+
+        //создание директорий в res
+        String pathnameForRes1 = "../Games/res/drawables";
+        appendDirInStringBuilder(stringBuilder, pathnameForRes1);
+        String pathnameForRes2 = "../Games/res/vectors";
+        appendDirInStringBuilder(stringBuilder, pathnameForRes2);
+        String pathnameForRes3 = "../Games/res/icons";
+        appendDirInStringBuilder(stringBuilder, pathnameForRes3);
+
+        //создание файлов в main
+        String pathnameChildForMain1 = "Main.java";
+        appendFileInStringBuilder(stringBuilder, pathnameForSrc1, pathnameChildForMain1);
+        String pathnameChildForMain2 = "Utils.java";
+        appendFileInStringBuilder(stringBuilder, pathnameForSrc1, pathnameChildForMain2);
+
+        //создание файла в temp
+        String pathnameChildForSaveGames = "temp.txt";
+        appendFileInStringBuilder(stringBuilder, pathname4, pathnameChildForSaveGames);
+
+        //task2
+        //создание экземпляров GameProgress и сохраняем в saveGames
         GameProgress gameProgress1 = new GameProgress(10, 20, 3, 61.6);
-        String name1 = "C://Users/1/Desktop/Java/Games/savegames/save1.dat";
+        String name1 = "../Games/saveGames/save1.dat";
         saveGame(gameProgress1, name1);
         GameProgress gameProgress2 = new GameProgress(7, 15, 2, 45.0);
-        String name2 = "C://Users/1/Desktop/Java/Games/savegames/save2.dat";
+        String name2 = "../Games/saveGames/save2.dat";
         saveGame(gameProgress2, name2);
         GameProgress gameProgress3 = new GameProgress(4, 34, 6, 78.4);
-        String name3 = "C://Users/1/Desktop/Java/Games/savegames/save3.dat";
+        String name3 = "../Games/saveGames/save3.dat";
         saveGame(gameProgress3, name3);
+
+        //добавление экземпляров в архив
         ArrayList<String> waysForZip = new ArrayList<>();
         waysForZip.add(name1);
         waysForZip.add(name2);
         waysForZip.add(name3);
-        String nameForZos = "C://Users/1/Desktop/Java/Games/savegames/zip.zip";
+
+        String nameForZos = "../Games/saveGames/zip.zip";
         String nameForEntry = "save";
         zipFiles(nameForZos, nameForEntry, waysForZip);
-        File fileForDelete1 = new File(dir3, "save1.dat");
-        stringBuilder.append(deleteFile(fileForDelete1));
-        File fileForDelete2 = new File(dir3, "save2.dat");
-        stringBuilder.append(deleteFile(fileForDelete2));
-        File fileForDelete3 = new File(dir3, "save3.dat");
-        stringBuilder.append(deleteFile(fileForDelete3));
-        openZip(nameForZos, dir3);
-        try (FileWriter fileWriter = new FileWriter(file3, false)) {
+
+        //удаление файлов сохранения вне архива
+        String pathnameForDeletedSave1 = "save1.dat";
+        appendDeletedFileInStringBuilder(stringBuilder, pathname3, pathnameForDeletedSave1);
+        String pathnameForDeletedSave2 = "save2.dat";
+        appendDeletedFileInStringBuilder(stringBuilder, pathname3, pathnameForDeletedSave2);
+        String pathnameForDeletedSave3 = "save3.dat";
+        appendDeletedFileInStringBuilder(stringBuilder, pathname3, pathnameForDeletedSave3);
+
+        //task3
+        //разархивация
+        openZip(nameForZos, new File(pathname3));
+
+        //запись результатов в temp.txt
+        try (FileWriter fileWriter = new FileWriter(new File(pathname4, pathnameChildForSaveGames), false)) {
             fileWriter.write(stringBuilder.toString());
             fileWriter.flush();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+
+        //вывод в консоль состояния сохраненной игры
         System.out.println(openProgress(name2));
     }
 
+    public static void appendDirInStringBuilder(StringBuilder stringBuilder, String pathname) {
+        File dir = new File(pathname);
+        stringBuilder.append(makeDir(dir));
+    }
+
+    public static void appendFileInStringBuilder(StringBuilder stringBuilder, String nameParent, String nameChild) {
+        File file = new File(nameParent, nameChild);
+        stringBuilder.append(makeFile(file));
+    }
+
+    public static void appendDeletedFileInStringBuilder(StringBuilder stringBuilder, String nameParent, String nameChild) {
+        File fileForDelete = new File(nameParent, nameChild);
+        stringBuilder.append(deleteFile(fileForDelete));
+    }
     public static String makeDir(File dir) {
         if (dir.mkdir()) {
             return "\nКаталог " + dir.getName() + " был создан";
